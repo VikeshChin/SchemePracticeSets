@@ -1,0 +1,43 @@
+(define (head stream)  (car stream))
+(define (rest stream)  (force (cdr stream)))
+
+;take first k elements of stream s
+(define (take s k)
+  (if (= k 0) '()
+      (cons (head s) (take (rest s) (- k 1)))))
+
+;square the elements of the stream
+(define (square s)
+  (if (null? s)
+      '()
+      (cons (expt (head s) 2)
+            (delay (square (rest s))))))
+
+;cube the elements of the stream
+(define (cube s)
+  (if (null? s)
+      '()
+      (cons (expt (head s) 3)
+            (delay (square (rest s))))))
+
+;merge 2 streams
+(define (merge-streams s1 s2)
+  (cond ((null? s1) s2) 
+    ((null? s2) s1) 
+    (( < (head s1) (head s2))
+     (cons (head s1) (lambda() (merge-streams (rest s1) s2))))
+    (else (cons (head s1) (lambda () (merge-streams s1 (rest s2)))))))
+
+
+(define (make-tree v l r) (list v l r))
+(define (value t) (car t))
+(define (left t) (cadr t))
+(define (right t) (caddr t))
+
+;return if the given tree is a heap
+(define (is-heap? T)
+  (or (null? T)
+      (and (or (null? (left T)) (< (value T) (value (left T))))
+           (or (null? (right T)) (< (value T) (value (right T))))
+           (is-heap? (left T))
+           (is-heap? (right T)))))
