@@ -1,0 +1,45 @@
+(define (make-tree value left right)
+  (list value left right))
+(define (value T) (car T))
+(define (right T) (caddr T))
+(define (left T)  (cadr T))
+
+;find the depth of tree
+(define (tree-depth t)
+  (if(or (null? t) (and (null? (left t)) (null? (right t)))) 0
+     (let((left1(tree-depth (left t)))
+          (right2(tree-depth(right t))))
+       (if(> left1 right2)(+ 1 left1)(+ 1 right2)))))
+
+;find the number of nodes of a tree
+(define (tree-size t)
+  (cond ((null? t) 0)
+        (else (+ 1
+                 (tree-size (left t))
+                 (tree-size (right t))))))
+
+;counts the number of nodes that only have on child
+(define (count-one-child tree)
+  (let((left(left tree ))
+      (right(right tree)))
+    (cond((and(null? left) (null? right)) 0)
+         ((and(not(null? left))(not(null? right)))
+          (+ ( count-one-child left)(count-one-child right)))
+         ((null? left)(+ 1 (count-one-child right)))
+         (else (+ 1 (count-one-child left))))))
+
+(tree-depth (list 99 (list 15 (list) (list)) (list)))
+
+;inverts a binary search tree
+(define (invert-bst t)
+  (if(null? t) (list)(make-tree(value t) (invert-bst(right t))
+                               (invert-bst(left t)))))
+
+;counts the number of occurences of a value in a tree
+(define (count-pred p tree)
+  (cond ((null? tree) 0)
+        ((p (value tree))
+        (+ 1 (count-pred p (left tree))
+            (count-pred p (right tree))))
+        (else (+ (count-pred p (left tree))
+                 (count-pred p (right tree))))))
