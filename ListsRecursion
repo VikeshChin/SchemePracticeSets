@@ -1,0 +1,51 @@
+;take 2 lists and combine together using recursion
+(define (zip l1 l2)
+  (if (or (null? l1) (null? l2)) '()
+      (cons (cons (car l1) (car l2)) (zip (cdr l1) (cdr l2)))))
+
+;find sum of list using recursion
+(define (list-sum l)
+  (if (null? l) 0
+      (+ (car l) (list-sum (cdr l)))))
+
+;find average of list using recursion
+(define (average l)
+  (/ (list-sum l) (length l)))
+
+;take a zipped list and return 2 lists
+(define (unzip l)
+   (if(null? l) '(())
+        (let* ((var( unzip (cdr l)))
+        (var2  (car var))
+        (var3(cdr var)))
+          (cons(cons(caar l)var2) (cons(cdar l)var3)))))
+(unzip (list (cons 1 4) (cons 2 5) (cons 3 6)))
+
+;function that is appplied to every element of the list
+(define (map2 f x y)
+  (if (null? x) '()
+      (cons (f (car x) (car y)) (map2 f (cdr x) (cdr y)))))
+
+;definition of covar-elements
+(define (covar-elements x y)
+  (let ((avgx (average x))
+       (avgy (average y)))
+    (map2 (lambda (a b) (* (- a avgx) (- b avgy))) x y)))
+
+;given a list of coins this returns a list showing the number of repititions of each sequence of consecutive values 
+(define (rle coins)
+  (define (helper coins n)
+    (if (null? coins) coins
+        (if (null? (cdr coins)) (list (cons n (car coins)))
+            (if (= (car coins) (car (cdr coins))) 
+                (helper (cdr coins) (+ n 1))
+                (cons (cons n (car coins)) (helper(cdr coins) 1)))))) (helper coins 1))
+
+;lists all the ways the make change for a given value using a list
+(define (make-change n den)
+  (define (helper n den cur)
+    (cond (( = n 0) (list cur))
+          ((or (< n 0) (null? den)) (list))
+          (else (append (helper (- n (car den)) den (cons (car den) cur))
+                        (helper n (cdr den) cur)))))
+  (helper n den '()))
