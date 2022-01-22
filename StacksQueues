@@ -1,0 +1,110 @@
+;defintion of stack
+(define (make-stack)
+  (let ((s '()))
+    (define (empty?) (null? s))
+    (define (top) (car s))
+    (define (pop) (let ((top (car s)))
+                    (begin (set! s (cdr s)) top)))
+(define (push x) (set! s (cons x s)))
+(define (dispatcher method)
+  (cond ((eq? method 'top) top)
+        ((eq? method 'pop) pop)
+        ((eq? method 'push) push)
+        ((eq? method 'empty?) empty?)))
+dispatcher))
+
+;creation of a clock object
+(define (make-clock hours minutes)
+  (let ((min (+ (* 60 hours) minutes)))
+  (define (tick)
+    (set! min (+ min 1)))
+  (define (time)
+    (let ((h (remainder (floor (/ min 60)) 12))
+          (mins (modulo min 60)))
+      (string-append
+       (if (zero? h) "12"
+           (number->string h))
+       ":"
+       (if (< mins 10)
+           (string-append "0" (number->string mins))
+           (number->string mins))
+       (if (< (remainder (quotient min 60) 24) 12)
+           " AM\n"
+           " PM\n"))))
+  (define (military)
+    (let ((hs (remainder (quotient min 60) 24))
+          (ms (modulo min 60)))
+      (string-append
+       (if (< hs 10)
+           (string-append "0" (number->string hs))
+           (string-append (number->string hs)))
+       ":"
+       (if (< ms 10)
+           (string-append "0" (number->string ms) "\n")
+           (string-append (number->string minutes) "\n")))))
+  (lambda (method)
+          (cond((eq? method 'time) time)
+               ((eq? method 'tick) tick)
+               ((eq? method 'military) military)))))
+
+(define x (make-clock 21 0))
+((x 'tick))
+((x 'time))
+((x 'military))
+
+;evaluation of a postfix operation on stacks
+(define (eval-postfix p)
+  (let ((s (make-stack)))
+    (define (helper l)
+      (cond ((null? l) ((s 'top)))
+            ((number? (car l)) ((s 'push) (car l)) (helper (cdr l)))
+            (else
+             (cond ((eq? (car l) #\+) (op + ((s 'pop)) ((s 'pop))))
+                   ((eq? (car l) #\-) (op - ((s 'pop)) ((s 'pop))))
+                   ((eq? (car l) #\*) (op * ((s 'pop)) ((s 'pop))))
+                   ((eq? (car l) #\/) (op / ((s 'pop)) ((s 'pop))))
+                   ((eq? (car l) #\^) (op expt ((s 'pop)) ((s 'pop)))))
+             (helper (cdr l)))))
+  (define (op a b c)
+    ((s 'push) (a c b)))
+  (helper p)))
+
+;definition of enqueue
+(define (enqueue a b)
+  (if (null? b)
+      (list a)
+      (cons (car b) (enqueue a (cdr b)))))
+(define (helper a) (car a))
+(define (empty? a) (null? a))
+(define (dequeue a) (cdr a))
+
+(define (value t) (car t))
+(define (left t) (cadr t))
+(define (right t) (caddr t))
+
+;Depth-first search algorithim using stacks
+(define (dfs t)
+  (let ((s (make-stack)))
+    ((s 'push) t)
+    (define (helper)
+      (cond (((s 'empty?)) '())
+            (else
+             (let ((pop ((s 'pop))))
+               (if (not (null? (right pop))) ((s 'push) (right pop)))
+               (if (not (null? (left pop))) ((s 'push) (left pop)))
+               (cons (value pop) (helper))))))
+    (helper)))
+               
+;Breadth-first search algorithms using queues
+(define (bfs t)
+  (let ((a (enqueue t '())))
+    (define (helper1)
+      (cond ((empty? a) '())
+            (else
+             (let ((b (helper a)))
+               (set! a (dequeue a))
+               (if (not (null? (left b))) (set! a (enqueue (left b) a)))
+               (if (not (null? (right b))) (set! a (enqueue (right b) a)))
+               (cons (value b) (helper1))))))
+    (helper1)))
+
