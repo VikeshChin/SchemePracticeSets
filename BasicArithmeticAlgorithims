@@ -1,0 +1,46 @@
+;convert user input of dollars to euros
+(define (usd-to-euro usd)
+	(* usd 0.82)
+)
+(usd-to-euro 250)
+
+;convert user input of euros to yen
+(define (euro-to-yen euro)
+	(* euro 126.01)
+)
+(euro-to-yen 250)
+
+;covert user input of euros to dollars
+(define (usd-to-yen usd)
+  (euro-to-yen (usd-to-euro usd))
+)
+(usd-to-yen 250)
+
+(define e 2.71828)
+
+;definition of tan
+(define (tanh x)
+ (/(- (expt e (* 2 x))  1)(+(expt e (* 2 x)) 1))
+)
+(tanh 45)
+
+
+;definition of determinant
+(define (det2x2 a b c d)
+  (-(* a d) (* b c))
+ )
+
+(det2x2 -3 1 2 7)
+
+;checks if matrix is invertible
+(define (invertible? a b c d)
+  (not (= 0 (det2x2 a b c d)))
+)
+(invertible? -3 1 2 7)
+(invertible? 2 -4 -6 12)
+
+;test if multiplication of matrix is invertible
+(define (prod-inv-direct? a1 b1 c1 d1 a2 b2 c2 d2)
+  (invertible? (+ (* a1 a2) (* b1 c2)) (+(* a1 b2) (* b1 d2)) (+(* c1 a2) (* d1 c2)) (+(* c1 b2) (* d1 d2)))
+)
+
